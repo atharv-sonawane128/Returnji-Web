@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --color-dark-green: #3b5034;
+  --color-light-beige: #ede8de;
+  --color-bright-white: #ffffff;
+  
+  --font-ultra: var(--font-ultra), serif;
+  --font-bricolage: var(--font-bricolage), sans-serif;
+}
+
+body {
+  margin: 0;
+}
