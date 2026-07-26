@@ -33,7 +33,9 @@ export function AuthProvider({ children }) {
             // This way user.phoneNumber is populated anywhere in the app
             const mergedUser = {
               ...currentUser,
-              phoneNumber: currentUser.phoneNumber || data.phone
+              phoneNumber: currentUser.phoneNumber || data.phone,
+              role: data.role || 'user',
+              isAdmin: data.role === 'admin'
             };
             setUser(mergedUser);
           } else {

@@ -18,14 +18,10 @@ export default function SignupPage() {
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // If already logged in, redirect
+  // If already logged in, redirect to shop
   useEffect(() => {
     if (user) {
-      if (user.phoneNumber) {
-        router.push("/shop");
-      } else {
-        router.push("/verify-phone");
-      }
+      router.push("/shop");
     }
   }, [user, router]);
 

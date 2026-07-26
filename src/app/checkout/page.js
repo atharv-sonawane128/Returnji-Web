@@ -1,9 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Script from "next/script";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
@@ -24,8 +27,6 @@ export default function CheckoutPage() {
   useEffect(() => {
     if (user === null) {
       router.push("/login");
-    } else if (user && !user.phoneNumber) {
-      router.push("/verify-phone");
     }
   }, [user, router]);
 
@@ -34,19 +35,153 @@ export default function CheckoutPage() {
   const email = user?.email || "";
   const phone = user?.phoneNumber || "";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate network request
-    setTimeout(() => {
-      if (directCheckoutItem) {
-        setDirectCheckoutItem(null);
-      } else {
-        clearCart();
+    try {
+      // Extract form input values directly
+      const form = e.target;
+      const enteredEmail = form.querySelector('input[type="email"]')?.value || email;
+      const enteredPhoneInput = form.querySelector('input[type="tel"]')?.value || "";
+      const enteredPhone = enteredPhoneInput ? `+91${enteredPhoneInput.replace(/^\+91/, '').trim()}` : phone;
+
+      // Get currently selected dropzone from the select element if student
+      let dropzone = "";
+      if (isStudent) {
+        const dropzoneSelect = form.querySelector("select");
+        if (dropzoneSelect) dropzone = dropzoneSelect.value;
       }
-      router.push("/checkout/success");
-    }, 1500);
+
+      // Generate local order/receipt ID
+      const receiptId = `rcpt_${Date.now()}`;
+
+      // Validate order total
+      if (!checkoutTotal || isNaN(checkoutTotal) || checkoutTotal < 1) {
+        throw new Error("Order amount must be at least ₹1.");
+      }
+
+      // 1. Create order on backend (in paise)
+      const res = await fetch("/api/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: Math.round(checkoutTotal * 100),
+          currency: "INR",
+          receipt: receiptId.slice(0, 40),
+        }),
+      });
+
+      const orderData = await res.json();
+      if (!res.ok || !orderData.order_id) {
+        throw new Error(orderData.error || `Server returned ${res.status}: Failed to create Razorpay order`);
+      }
+
+      // 2. Open Razorpay Checkout Modal
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "Returnji",
+        description: "Order Payment",
+        order_id: orderData.order_id,
+        prefill: {
+          name: `${firstName} ${lastName}`.trim(),
+          email: enteredEmail,
+          contact: enteredPhone,
+        },
+        theme: {
+          color: "#0F382C",
+        },
+        handler: async function (response) {
+          try {
+            // 3. Verify Payment Signature
+            const verifyRes = await fetch("/api/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+
+            if (verifyRes.ok && verifyData.success) {
+              // Save confirmed order to Firestore only after payment success
+              try {
+                await addDoc(collection(db, "orders"), {
+                  userId: user?.uid || "guest",
+                  customerName: `${firstName} ${lastName}`.trim() || "Customer",
+                  email: enteredEmail,
+                  phone: enteredPhone,
+                  items: checkoutItems.map(item => ({
+                    productId: item.product.id,
+                    name: item.product.name,
+                    price: item.product.price,
+                    quantity: item.quantity,
+                    image: item.product.image
+                  })),
+                  totalAmount: checkoutTotal,
+                  deliveryDetails: {
+                    isStudent,
+                    dropzone,
+                  },
+                  paymentMethod: isStudent ? paymentMethod : "razorpay",
+                  paymentStatus: "paid",
+                  adminStatus: "confirmed", // 2 states for admin: "confirmed" | "delivered"
+                  userTrackingStatus: "confirmed", // tracking: "confirmed" | "packing" | "at_dropzone" | "delivered"
+                  pickupOtp: String(Math.floor(100000 + Math.random() * 900000)), // Unique 6-digit OTP
+                  status: "confirmed",
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  createdAt: serverTimestamp(),
+                  paidAt: serverTimestamp(),
+                });
+              } catch (dbErr) {
+                console.warn("Firestore save failed:", dbErr);
+              }
+
+              if (directCheckoutItem) {
+                setDirectCheckoutItem(null);
+              } else {
+                clearCart();
+              }
+              router.push("/checkout/success");
+            } else {
+              alert(`Payment verification failed: ${verifyData.error || "Invalid signature"}`);
+              setIsSubmitting(false);
+            }
+          } catch (err) {
+            console.error("Verification error:", err);
+            alert("Error verifying payment. Please contact support.");
+            setIsSubmitting(false);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            setIsSubmitting(false);
+          },
+        },
+      };
+
+      if (window.Razorpay) {
+        const rzp = new window.Razorpay(options);
+        rzp.on("payment.failed", function (response) {
+          alert(`Payment failed: ${response.error?.description || "Transaction rejected"}`);
+          setIsSubmitting(false);
+        });
+        rzp.open();
+      } else {
+        alert("Razorpay SDK failed to load. Please check your connection.");
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      console.error("Error processing order: ", error);
+      alert(error.message || "There was an error processing your order. Please try again.");
+      setIsSubmitting(false);
+    }
   };
 
   if (checkoutItems.length === 0 && !isSubmitting) {
@@ -62,6 +197,7 @@ export default function CheckoutPage() {
 
   return (
     <main className="min-h-screen bg-bright-white pt-24 pb-20 px-4 sm:px-6">
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" />
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12">
 
         {/* Left Column - Form */}
@@ -135,34 +271,25 @@ export default function CheckoutPage() {
             </section>
 
             {isStudent && (
-              <>
-                {/* Payment Info */}
-                <section>
-                  <h2 className="text-xl font-bold text-dark-green mb-4">Payment Method</h2>
-                  <div className="space-y-3">
-                    <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'upi' ? 'border-dark-green bg-light-beige/50' : 'border-gray-200 hover:bg-light-beige/30'}`}>
-                      <input type="radio" name="payment" value="upi" checked={paymentMethod === 'upi'} onChange={() => setPaymentMethod('upi')} className="w-4 h-4 text-dark-green focus:ring-dark-green border-gray-300" />
-                      <span className="ml-3 font-semibold text-dark-green">UPI (GPay, PhonePe, Paytm)</span>
-                    </label>
-                    <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'credit' ? 'border-dark-green bg-light-beige/50' : 'border-gray-200 hover:bg-light-beige/30'}`}>
-                      <input type="radio" name="payment" value="credit" checked={paymentMethod === 'credit'} onChange={() => setPaymentMethod('credit')} className="w-4 h-4 text-dark-green focus:ring-dark-green border-gray-300" />
-                      <span className="ml-3 font-semibold text-dark-green">Credit Card</span>
-                    </label>
-                    <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'debit' ? 'border-dark-green bg-light-beige/50' : 'border-gray-200 hover:bg-light-beige/30'}`}>
-                      <input type="radio" name="payment" value="debit" checked={paymentMethod === 'debit'} onChange={() => setPaymentMethod('debit')} className="w-4 h-4 text-dark-green focus:ring-dark-green border-gray-300" />
-                      <span className="ml-3 font-semibold text-dark-green">Debit Card</span>
-                    </label>
-                  </div>
-                </section>
+              <section>
+                <h2 className="text-xl font-bold text-dark-green mb-4">Payment Method</h2>
+                <div className="space-y-3">
+                  <label className={`flex items-center p-4 border rounded-xl cursor-pointer transition-colors ${paymentMethod === 'upi' ? 'border-dark-green bg-light-beige/50' : 'border-gray-200 hover:bg-light-beige/30'}`}>
+                    <input type="radio" name="payment" value="upi" checked={paymentMethod === 'upi'} onChange={() => setPaymentMethod('upi')} className="w-4 h-4 text-dark-green focus:ring-dark-green border-gray-300" />
+                    <span className="ml-3 font-semibold text-dark-green">Razorpay (UPI, Cards, NetBanking, Wallets)</span>
+                  </label>
+                </div>
+              </section>
+            )}
 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-dark-green text-light-beige py-4 rounded-2xl font-bricolage font-bold text-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
-                >
-                  {isSubmitting ? "Processing..." : `Place Pre-Order (₹${checkoutTotal.toFixed(2)})`}
-                </button>
-              </>
+            {isStudent && (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-dark-green text-light-beige py-4 rounded-2xl font-bricolage font-bold text-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center"
+              >
+                {isSubmitting ? "Processing..." : `Pay Now (₹${checkoutTotal.toFixed(2)})`}
+              </button>
             )}
           </form>
         </div>

@@ -22,6 +22,16 @@ export default function CartDrawer() {
     return () => { document.body.style.overflow = "unset"; };
   }, [isCartOpen]);
 
+  const handleCheckout = () => {
+    setIsCartOpen(false);
+    setDirectCheckoutItem(null);
+    if (!user) {
+      router.push('/login');
+    } else {
+      router.push('/checkout');
+    }
+  };
+
   if (!isCartOpen) return null;
 
   return (
@@ -116,17 +126,7 @@ export default function CartDrawer() {
               <span className="font-bricolage text-2xl font-bold text-dark-green">₹{cartTotal.toFixed(2)}</span>
             </div>
             <button 
-              onClick={() => {
-                setIsCartOpen(false);
-                setDirectCheckoutItem(null); // Ensure we checkout the cart, not a leftover direct item
-                if (!user) {
-                  router.push('/login');
-                } else if (!user.phoneNumber) {
-                  router.push('/verify-phone');
-                } else {
-                  router.push('/checkout');
-                }
-              }}
+              onClick={handleCheckout}
               className="w-full block text-center bg-dark-green text-light-beige py-4 rounded-2xl font-bricolage font-bold text-lg hover:opacity-90 transition-opacity"
             >
               Proceed to Checkout

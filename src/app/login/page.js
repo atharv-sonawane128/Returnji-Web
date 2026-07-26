@@ -14,14 +14,10 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // If already logged in, redirect based on phone number presence
+  // If already logged in, redirect to shop
   useEffect(() => {
     if (user) {
-      if (user.phoneNumber) {
-        router.push("/shop");
-      } else {
-        router.push("/verify-phone");
-      }
+      router.push("/shop");
     }
   }, [user, router]);
 

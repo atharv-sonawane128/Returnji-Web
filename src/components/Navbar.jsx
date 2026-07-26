@@ -49,6 +49,9 @@ export default function Navbar() {
           <div className="hidden md:flex items-center space-x-6 lg:space-x-8 font-bricolage font-semibold text-sm tracking-wide">
             <Link href="/" className="hover:opacity-70 transition-opacity">HOME</Link>
             <Link href="/shop" className="hover:opacity-70 transition-opacity">SHOP</Link>
+            {user && (
+              <Link href="/orders" className="hover:opacity-70 transition-opacity text-dark-green font-bold">MY ORDERS</Link>
+            )}
           </div>
           
           {!user ? (
@@ -106,6 +109,9 @@ export default function Navbar() {
         <div className={`md:hidden absolute top-full left-0 w-full ${navBg} border-t border-gray-100 flex flex-col px-4 py-4 space-y-4 shadow-md font-bricolage font-semibold`}>
           <Link href="/" onClick={() => setIsOpen(false)} className="py-2 text-dark-green">HOME</Link>
           <Link href="/shop" onClick={() => setIsOpen(false)} className="py-2 text-dark-green">SHOP</Link>
+          {user && (
+            <Link href="/orders" onClick={() => setIsOpen(false)} className="py-2 text-dark-green font-bold">MY ORDERS</Link>
+          )}
           <div className="border-t border-gray-100 pt-4 flex flex-col space-y-3">
             {!user ? (
               <Link
