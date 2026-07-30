@@ -168,7 +168,7 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
         {/* Bottom Sheet Modal & Circular Switcher Stack */}
         <Drawer.Content className="fixed bottom-3 sm:bottom-6 inset-x-0 z-50 flex flex-col items-center max-h-[88vh] sm:max-w-lg sm:mx-auto outline-none pointer-events-auto px-3">
           {/* Main White Card Container */}
-          <div className="w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[70vh] sm:max-h-[78vh]">
+          <div className="w-full bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh] sm:max-h-[78vh]">
             {/* Mobile Drag Handle Indicator */}
             <div className="w-full flex justify-center pt-3 pb-1 sm:hidden cursor-grab active:cursor-grabbing">
               <div className="w-12 h-1.5 rounded-full bg-stone-300" />
@@ -180,7 +180,7 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
             <div className="overflow-y-auto no-scrollbar scrollbar-none flex-1 p-4 sm:p-6 space-y-3.5 sm:space-y-4">
               {/* Top Carousel Section */}
               <div className="space-y-3">
-                <div className="relative aspect-square max-h-[240px] sm:max-h-none w-full rounded-2xl overflow-hidden bg-[#F9F6F0] shadow-xs mx-auto">
+                <div className="relative aspect-square max-h-[300px] sm:max-h-none w-full rounded-2xl overflow-hidden bg-[#F9F6F0] shadow-xs mx-auto">
                   {/* Embla Viewport */}
                   <div className="overflow-hidden h-full w-full" ref={emblaRef}>
                     <div className="flex h-full">
@@ -236,11 +236,10 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
                         type="button"
                         onClick={() => emblaApi?.scrollTo(idx)}
                         aria-label={`Go to slide ${idx + 1}`}
-                        className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                          selectedIndex === idx
-                            ? "w-6 bg-[#1B4D3E]"
-                            : "w-2 bg-stone-300 hover:bg-stone-400"
-                        }`}
+                        className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${selectedIndex === idx
+                          ? "w-6 bg-[#1B4D3E]"
+                          : "w-2 bg-stone-300 hover:bg-stone-400"
+                          }`}
                       />
                     ))}
                   </div>
@@ -334,9 +333,8 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
                       <span>Payment & Bank Offers ({product.paymentOffers.length})</span>
                     </div>
                     <ChevronRight
-                      className={`w-4 h-4 transition-transform duration-200 ${
-                        offersExpanded ? "rotate-90" : ""
-                      }`}
+                      className={`w-4 h-4 transition-transform duration-200 ${offersExpanded ? "rotate-90" : ""
+                        }`}
                     />
                   </button>
 
@@ -363,11 +361,21 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
                 </span>
               </div>
 
-              <QuantityStepper
-                quantity={cartQuantity}
-                onIncrement={() => onUpdateQuantity(product.id, cartQuantity + 1)}
-                onDecrement={() => onUpdateQuantity(product.id, Math.max(0, cartQuantity - 1))}
-              />
+              {product.ctaLabel === "Coming Soon" ? (
+                <button
+                  type="button"
+                  disabled
+                  className="bg-stone-200 text-stone-600 font-bold rounded-xl px-5 py-2.5 text-sm cursor-not-allowed shadow-2xs border border-stone-300/50"
+                >
+                  Coming Soon
+                </button>
+              ) : (
+                <QuantityStepper
+                  quantity={cartQuantity}
+                  onIncrement={() => onUpdateQuantity(product.id, cartQuantity + 1)}
+                  onDecrement={() => onUpdateQuantity(product.id, Math.max(0, cartQuantity - 1))}
+                />
+              )}
             </div>
           </div>
 
@@ -398,11 +406,10 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
                           }
                         }}
                         aria-label={`Switch to ${p.title}`}
-                        className={`group relative rounded-full overflow-hidden transition-all duration-300 shadow-md cursor-pointer shrink-0 bg-stone-200 ${
-                          isCurrent
-                            ? "w-11 h-11 sm:w-14 sm:h-14 border-3 sm:border-4 border-white ring-2 sm:ring-4 ring-white/40 z-20 opacity-100 scale-110"
-                            : "w-8 h-8 sm:w-10 sm:h-10 border-2 border-white/70 opacity-70 hover:opacity-100 hover:scale-105"
-                        }`}
+                        className={`group relative rounded-full overflow-hidden transition-all duration-300 shadow-md cursor-pointer shrink-0 bg-stone-200 ${isCurrent
+                          ? "w-11 h-11 sm:w-14 sm:h-14 border-3 sm:border-4 border-white ring-2 sm:ring-4 ring-white/40 z-20 opacity-100 scale-110"
+                          : "w-8 h-8 sm:w-10 sm:h-10 border-2 border-white/70 opacity-70 hover:opacity-100 hover:scale-105"
+                          }`}
                       >
                         <Image
                           src={p.imageUrl}

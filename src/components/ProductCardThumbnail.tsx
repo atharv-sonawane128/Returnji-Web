@@ -99,26 +99,35 @@ export const ProductCardThumbnail: React.FC<ProductCardThumbnailProps> = ({
         <div className="mt-auto flex items-center gap-2 pt-2">
           <button
             type="button"
+            disabled={product.ctaLabel === "Coming Soon"}
             onClick={(e) => {
               e.stopPropagation();
-              onPreOrder(product);
+              if (product.ctaLabel !== "Coming Soon") {
+                onPreOrder(product);
+              }
             }}
-            className="flex-1 bg-[#3A5343] hover:bg-[#2C4133] active:bg-[#1E302B] text-[#FDFBF7] font-bold text-xs py-2.5 px-4 rounded-full transition-colors cursor-pointer shadow-2xs"
+            className={`flex-1 font-bold text-xs py-2.5 px-4 rounded-full transition-colors shadow-2xs ${
+              product.ctaLabel === "Coming Soon"
+                ? "bg-stone-200 text-stone-500 cursor-not-allowed border border-stone-300/40"
+                : "bg-[#3A5343] hover:bg-[#2C4133] active:bg-[#1E302B] text-[#FDFBF7] cursor-pointer"
+            }`}
           >
             {product.ctaLabel || "Pre-Order"}
           </button>
 
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart(product);
-            }}
-            aria-label="Add to cart"
-            className="w-9 h-9 rounded-xl bg-[#F0EBE1] hover:bg-[#E4DDCF] active:bg-[#DFC7B6]/40 text-[#1E302B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
-          >
-            <ShoppingCart className="w-4 h-4 text-[#1E302B]" />
-          </button>
+          {product.ctaLabel !== "Coming Soon" && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToCart(product);
+              }}
+              aria-label="Add to cart"
+              className="w-9 h-9 rounded-xl bg-[#F0EBE1] hover:bg-[#E4DDCF] active:bg-[#DFC7B6]/40 text-[#1E302B] flex items-center justify-center transition-colors shrink-0 cursor-pointer"
+            >
+              <ShoppingCart className="w-4 h-4 text-[#1E302B]" />
+            </button>
+          )}
         </div>
       </div>
     </div>
