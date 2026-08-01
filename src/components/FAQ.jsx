@@ -37,7 +37,7 @@ export default function FAQ() {
           
           <div className="relative w-64 h-64 sm:w-72 sm:h-72 md:w-96 md:h-96 mt-4 md:mt-12 -rotate-6 hover:rotate-0 transition-transform duration-500 z-0">
             <img 
-              src="/landing-06.png" 
+              src="/landing_03.png" 
               alt="Floating sticker" 
               className="object-contain w-full h-full drop-shadow-2xl opacity-90"
             />

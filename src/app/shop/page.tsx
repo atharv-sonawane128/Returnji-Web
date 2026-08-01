@@ -17,7 +17,7 @@ const SHOP_PRODUCTS: ProductDetail[] = [
   {
     id: "prod-1",
     title: "Returnji QR Stickers",
-    price: 39.0,
+    price: 29.0,
     mrp: 49.0,
     weight: "Single Sticker",
     brand: "ReturnJi",
@@ -34,7 +34,7 @@ const SHOP_PRODUCTS: ProductDetail[] = [
   {
     id: "prod-2",
     title: "Returnji QR Keychain",
-    price: 89.0,
+    price: 79.0,
     mrp: 119.0,
     weight: "Single Keychain",
     brand: "ReturnJi",
@@ -51,14 +51,14 @@ const SHOP_PRODUCTS: ProductDetail[] = [
   {
     id: "prod-3",
     title: "Returnji Small QR Sticker",
-    price: 49.0,
+    price: 39.0,
     mrp: 69.0,
     weight: "Single Sticker",
     brand: "ReturnJi",
     rating: 0,
     reviewCount: "0",
     description:
-      "A premium QR-enabled keychain designed for keys, backpacks, luggage, and valuables. If found, anyone can scan the QR code and securely help return your item.",
+      "A compact QR sticker specially designed for earbuds and earbud cases. If your earbuds are lost, anyone can scan the QR code to securely notify you and help return them—without revealing your personal information.",
     imageUrl: "/small_sticker_one.png",
     images: ["/small_sticker_one.png", "/small_sticker_two.jpeg"],
     badge: "PERFECT",

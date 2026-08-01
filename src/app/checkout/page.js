@@ -19,8 +19,8 @@ export default function CheckoutPage() {
   const [isStudent, setIsStudent] = useState(false);
 
   const checkoutItems = directCheckoutItem ? [directCheckoutItem] : cartItems;
-  const checkoutTotal = directCheckoutItem 
-    ? parseFloat(directCheckoutItem.product.price.replace(/[^0-9.]/g, '')) * directCheckoutItem.quantity 
+  const checkoutTotal = directCheckoutItem
+    ? parseFloat(directCheckoutItem.product.price.replace(/[^0-9.]/g, '')) * directCheckoutItem.quantity
     : cartTotal;
 
   // Protect route
@@ -252,9 +252,9 @@ export default function CheckoutPage() {
                         <option value="jagdish foods">Jagdish Foods, New FoodCourt</option>
                         <option value="krishna foodcourt">Krishna FoodCourt, Architecture Building</option>
                         <option value="d&d">Dream & Drazzle, Capitol FoodCout</option>
-                        <option value="mogal mug pulav">Mogal Mug Pulav, PTI FoodCourt</option>
-                        <option value="mr puff">Mr. Puff, PTI, Near CBI Bank</option>
-                        <option value="sanwariyaa chaat">Sanwariyaa Chaat Corner, PTI FoodCourt</option>
+                        <option value="mogal mug pulav">Mogal Mug Pulav, PIT FoodCourt</option>
+                        <option value="mr puff">Mr. Puff, Near PIT, Near CBI Bank</option>
+                        <option value="sanwariyaa chaat">Sanwariyaa Chaat Corner, PIT FoodCourt</option>
                       </select>
                     </div>
 
