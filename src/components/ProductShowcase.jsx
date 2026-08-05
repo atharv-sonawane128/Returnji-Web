@@ -30,14 +30,8 @@ export default function ProductShowcase() {
   };
 
   const handleAddToCart = (product) => {
-    if (!user) {
-      router.push('/login');
-    } else if (!user.phoneNumber) {
-      router.push('/verify-phone');
-    } else {
-      addToCart(product);
-      setIsCartOpen(true);
-    }
+    addToCart(product);
+    setIsCartOpen(true);
   };
 
   const filteredProducts = PRODUCTS.filter(p =>
@@ -153,7 +147,7 @@ export default function ProductShowcase() {
                     onClick={() => handlePreOrder(product)}
                     className="flex-1 bg-dark-green text-light-beige py-3 sm:py-3.5 rounded-xl sm:rounded-2xl font-bricolage font-bold text-sm sm:text-base hover:opacity-90 transition-opacity"
                   >
-                    Pre-Order
+                    Order Now
                   </button>
                   <button
                     onClick={() => handleAddToCart(product)}

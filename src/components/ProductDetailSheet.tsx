@@ -14,6 +14,7 @@ import {
   Tag,
   Star,
   Quote,
+  ShoppingCart,
 } from "lucide-react";
 import { ProductDetail } from "@/components/ProductCardThumbnail";
 import { RatingBadge } from "@/components/ui/RatingBadge";
@@ -30,6 +31,8 @@ interface ProductDetailSheetProps {
   onSelectProduct?: (product: ProductDetail) => void;
   cartQuantity: number;
   onUpdateQuantity: (id: string, newQty: number) => void;
+  onAddToCart?: (product: ProductDetail) => void;
+  onOrderNow?: (product: ProductDetail) => void;
 }
 
 /**
@@ -42,6 +45,8 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
   onSelectProduct,
   cartQuantity,
   onUpdateQuantity,
+  onAddToCart,
+  onOrderNow,
 }) => {
   const isOpen = Boolean(product);
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
@@ -353,11 +358,11 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
             </div>
 
             {/* Sticky Bottom Bar Pinned to White Card */}
-            <div className="bg-white border-t border-stone-100 p-3.5 sm:p-4 px-4 sm:px-5 flex items-center justify-between gap-4 z-20 shadow-xs">
+            <div className="bg-white border-t border-stone-100 p-3.5 sm:p-4 px-4 sm:px-5 flex items-center justify-between gap-3 sm:gap-4 z-20 shadow-xs">
               <div>
                 <span className="text-xs text-stone-500 block">Total Price</span>
                 <span className="text-base sm:text-lg font-black text-[#1B4D3E]">
-                  ₹{product.price.toFixed(2)}
+                  ₹{(product.price * (cartQuantity || 1)).toFixed(2)}
                 </span>
               </div>
 
@@ -370,11 +375,24 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
                   Coming Soon
                 </button>
               ) : (
-                <QuantityStepper
-                  quantity={cartQuantity}
-                  onIncrement={() => onUpdateQuantity(product.id, cartQuantity + 1)}
-                  onDecrement={() => onUpdateQuantity(product.id, Math.max(0, cartQuantity - 1))}
-                />
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <QuantityStepper
+                    quantity={cartQuantity}
+                    onIncrement={() => onUpdateQuantity(product.id, cartQuantity + 1)}
+                    onDecrement={() => onUpdateQuantity(product.id, Math.max(0, cartQuantity - 1))}
+                  />
+
+                  {onAddToCart && (
+                    <button
+                      type="button"
+                      onClick={() => onAddToCart(product)}
+                      className="bg-[#1B4D3E] hover:bg-[#143B2F] active:scale-95 text-white font-bold rounded-xl px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      <span>{cartQuantity > 0 ? "View Cart" : "Add to Cart"}</span>
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           </div>

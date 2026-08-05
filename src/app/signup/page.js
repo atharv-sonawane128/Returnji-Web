@@ -80,7 +80,7 @@ export default function SignupPage() {
         <div className="text-center space-y-4">
           <h1 className="font-ultra text-4xl text-dark-green">Create Account</h1>
           <p className="font-bricolage text-dark-green/70">
-            Join Returnji to easily pre-order and grab your favorite food.
+            Join Returnji to easily order and grab your favorite items.
           </p>
         </div>
 

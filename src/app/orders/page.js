@@ -266,13 +266,7 @@ export default function MyOrdersPage() {
               <div className="space-y-2 max-h-36 overflow-y-auto pr-1 scrollbar-hide">
                 {ratingModalOrder.items?.map((item, idx) => (
                   <div key={idx} className="flex items-center gap-3 bg-[#091c14] p-3 rounded-2xl border border-emerald-900/40">
-                    {item.image ? (
-                      <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded-xl shrink-0" />
-                    ) : (
-                      <div className="w-10 h-10 rounded-xl bg-emerald-900/40 flex items-center justify-center text-emerald-400 shrink-0">
-                        <Package className="w-5 h-5" />
-                      </div>
-                    )}
+                    <OrderItemImage item={item} className="w-10 h-10" />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold text-white truncate">{item.name}</p>
                       <p className="text-[11px] text-emerald-400 font-medium mt-0.5">Qty: {item.quantity}</p>
@@ -588,17 +582,7 @@ function OrderCard({ order, formatDate, getPaymentBadge, getStatusBadge, onOpenR
         {order.items && order.items.map((item, index) => (
           <div key={index} className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              {item.image ? (
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  className="w-14 h-14 object-cover rounded-xl border border-gray-100"
-                />
-              ) : (
-                <div className="w-14 h-14 rounded-xl bg-light-beige/50 flex items-center justify-center text-dark-green">
-                  <Package className="w-6 h-6" />
-                </div>
-              )}
+              <OrderItemImage item={item} className="w-14 h-14" />
               <div>
                 <h4 className="font-bold text-dark-green text-base">{item.name}</h4>
                 <p className="text-xs text-gray-500 font-medium">Qty: {item.quantity}</p>
@@ -631,6 +615,46 @@ function OrderCard({ order, formatDate, getPaymentBadge, getStatusBadge, onOpenR
           <span className="font-ultra text-2xl text-dark-green">₹{order.totalAmount?.toFixed(2)}</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+function OrderItemImage({ item, className = "w-14 h-14" }) {
+  const [hasError, setHasError] = useState(false);
+
+  const getSrc = () => {
+    if (!item) return null;
+    let src = item.image || item.imageUrl || item.product?.image || item.product?.imageUrl || null;
+    if (typeof src === "object" && src !== null) {
+      src = src.src || src.url || src.imageUrl || null;
+    }
+    if (typeof src !== "string" || !src.trim()) return null;
+    src = src.trim();
+
+    if (src === "[object Object]" || src === "undefined" || src === "null") return null;
+
+    if (!src.startsWith("/") && !src.startsWith("http://") && !src.startsWith("https://") && !src.startsWith("data:")) {
+      src = "/" + src;
+    }
+    return src;
+  };
+
+  const imageSrc = getSrc();
+
+  if (imageSrc && !hasError) {
+    return (
+      <img
+        src={imageSrc}
+        alt={item.name || "Product image"}
+        onError={() => setHasError(true)}
+        className={`${className} object-cover rounded-2xl border border-gray-200 bg-stone-100 shrink-0`}
+      />
+    );
+  }
+
+  return (
+    <div className={`${className} rounded-2xl bg-emerald-50 border border-emerald-200/80 flex items-center justify-center text-emerald-800 shrink-0`}>
+      <Package className="w-5 h-5 text-emerald-700" />
     </div>
   );
 }

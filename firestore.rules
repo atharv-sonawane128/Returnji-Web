@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && 
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // Users Collection Rules
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+    }
+
+    // QR Codes Collection Rules (Stickers, Keychains & Tags)
+    match /qrcodes/{qrId} {
+      // Public read so anyone scanning a lost item QR code can view item recovery details
+      allow read: if true;
+      // Allow write so owners can update item details and change status between Active and Lost
+      allow write: if true;
+    }
+
+    // Orders Collection Rules
+    match /orders/{orderId} {
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated();
+      allow delete: if isAdmin();
+    }
+
+    // Chats Collection & Subcollections Rules (Fixes /chats/{chatId}/messages subcollection permission issue)
+    match /chats/{chatId} {
+      allow read, write: if true;
+
+      // Subcollection rule for messages under a chat room
+      match /messages/{messageId} {
+        allow read, write: if true;
+      }
+    }
+
+    // Recursive wildcard match for any nested chat subcollections
+    match /chats/{chatId}/{document=**} {
+      allow read, write: if true;
+    }
+
+    // Top-Level Messages Collection Rules
+    match /messages/{messageId} {
+      allow read, write: if true;
+    }
+
+    // Dropzones Collection Rules (Locations where items can be dropped off)
+    match /dropzones/{dropzoneId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Drop Submissions Rules
+    match /dropSubmissions/{subId} {
+      allow read: if isAuthenticated();
+      allow write: if true;
+    }
+
+    // Notifications & Activities Rules
+    match /notifications/{notifId} {
+      allow read, write: if true;
+    }
+
+    match /activities/{actId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Scans & Rewards Rules
+    match /scans/{scanId} {
+      allow read, write: if true;
+    }
+
+    match /rewards/{rewardId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    // Ratings Collection Rules
+    match /ratings/{ratingId} {
+      allow read: if true;
+      allow create, update: if true;
+      allow delete: if isAdmin();
+    }
+  }
+}

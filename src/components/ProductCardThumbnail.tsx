@@ -112,7 +112,7 @@ export const ProductCardThumbnail: React.FC<ProductCardThumbnailProps> = ({
                 : "bg-[#3A5343] hover:bg-[#2C4133] active:bg-[#1E302B] text-[#FDFBF7] cursor-pointer"
             }`}
           >
-            {product.ctaLabel || "Pre-Order"}
+            {product.ctaLabel || "Order Now"}
           </button>
 
           {product.ctaLabel !== "Coming Soon" && (

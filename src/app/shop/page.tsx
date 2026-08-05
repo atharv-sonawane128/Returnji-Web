@@ -17,7 +17,7 @@ const SHOP_PRODUCTS: ProductDetail[] = [
   {
     id: "prod-1",
     title: "Returnji QR Stickers",
-    price: 29.0,
+    price: 39.0,
     mrp: 49.0,
     weight: "Single Sticker",
     brand: "ReturnJi",
@@ -29,12 +29,12 @@ const SHOP_PRODUCTS: ProductDetail[] = [
     images: ["/sticker_one.png", "/sticker_two.png"],
     badge: "BEST SELLER",
     badgeColor: "mint",
-    ctaLabel: "Pre-Order",
+    ctaLabel: "Order Now",
   },
   {
     id: "prod-2",
     title: "Returnji QR Keychain",
-    price: 79.0,
+    price: 89.0,
     mrp: 119.0,
     weight: "Single Keychain",
     brand: "ReturnJi",
@@ -46,12 +46,12 @@ const SHOP_PRODUCTS: ProductDetail[] = [
     images: ["/keychain_one.png", "/keychain_two.png", "/keychain_three.png"],
     badge: "PREMIUM",
     badgeColor: "gray",
-    ctaLabel: "Pre-Order",
+    ctaLabel: "Order Now",
   },
   {
     id: "prod-3",
     title: "Returnji Small QR Sticker",
-    price: 39.0,
+    price: 49.0,
     mrp: 69.0,
     weight: "Single Sticker",
     brand: "ReturnJi",
@@ -63,7 +63,7 @@ const SHOP_PRODUCTS: ProductDetail[] = [
     images: ["/small_sticker_one.png", "/small_sticker_two.jpeg"],
     badge: "PERFECT",
     badgeColor: "gray",
-    ctaLabel: "Pre-Order",
+    ctaLabel: "Order Now",
   },
   {
     id: "prod-3b",
@@ -80,7 +80,7 @@ const SHOP_PRODUCTS: ProductDetail[] = [
     images: ["/sticker_bundle_one.png", "/small_sticker_two.jpeg", "/sticker_two.png"],
     badge: "SAVE 15%",
     badgeColor: "mint",
-    ctaLabel: "Pre-Order",
+    ctaLabel: "Order Now",
   },
   {
     id: "prod-4",
@@ -97,7 +97,7 @@ const SHOP_PRODUCTS: ProductDetail[] = [
     images: ["/bundle_mockup_minor.jpeg",],
     badge: "SAVE 10%",
     badgeColor: "green",
-    ctaLabel: "Pre-Order",
+    ctaLabel: "Order Now",
   },
   {
     id: "prod-5",
@@ -114,7 +114,7 @@ const SHOP_PRODUCTS: ProductDetail[] = [
     images: ["/mockup_bundle_major.jpeg"],
     badge: "BUNDLE SAVE 20%",
     badgeColor: "amber",
-    ctaLabel: "Pre-Order",
+    ctaLabel: "Order Now",
   },
   {
     id: "prod-6",
@@ -157,9 +157,22 @@ export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState("All Products");
   const [cartQuantities, setCartQuantities] = useState<Record<string, number>>({});
 
-  const { addToCart, setIsCartOpen, setDirectCheckoutItem } = useCart();
+  const { addToCart, removeFromCart, updateQuantity, cartItems, setIsCartOpen, setDirectCheckoutItem } = useCart();
   const { user } = useAuth();
   const router = useRouter();
+
+  // Keep cartQuantities local state synced with CartContext cartItems
+  useEffect(() => {
+    const quantitiesMap: Record<string, number> = {};
+    if (cartItems && Array.isArray(cartItems)) {
+      cartItems.forEach((item: any) => {
+        if (item?.product?.id) {
+          quantitiesMap[item.product.id] = item.quantity;
+        }
+      });
+    }
+    setCartQuantities(quantitiesMap);
+  }, [cartItems]);
 
   const handlePreOrder = (product: ProductDetail) => {
     if (!user) {
@@ -180,18 +193,14 @@ export default function ShopPage() {
   };
 
   const handleAddToCart = (product: ProductDetail) => {
-    if (!user) {
-      router.push("/login");
-    } else {
-      addToCart({
-        id: product.id,
-        name: product.title,
-        price: `₹${product.price.toFixed(2)}`,
-        image: product.imageUrl,
-        desc: product.description,
-      });
-      setIsCartOpen(true);
-    }
+    addToCart({
+      id: product.id,
+      name: product.title,
+      price: `₹${product.price.toFixed(2)}`,
+      image: product.imageUrl,
+      desc: product.description,
+    });
+    setIsCartOpen(true);
   };
 
   const handleUpdateQuantity = (id: string, newQty: number) => {
@@ -199,6 +208,35 @@ export default function ShopPage() {
       ...prev,
       [id]: newQty,
     }));
+
+    const existingItem = (cartItems || []).find((item: any) => item.product?.id === id);
+    const targetProduct = SHOP_PRODUCTS.find((p) => p.id === id);
+
+    if (!targetProduct) return;
+
+    const formattedProduct = {
+      id: targetProduct.id,
+      name: targetProduct.title,
+      price: `₹${targetProduct.price.toFixed(2)}`,
+      image: targetProduct.imageUrl,
+      desc: targetProduct.description,
+    };
+
+    if (newQty <= 0) {
+      if (existingItem) {
+        removeFromCart(id);
+      }
+    } else if (!existingItem) {
+      addToCart(formattedProduct);
+      if (newQty > 1) {
+        updateQuantity(id, newQty - 1);
+      }
+    } else {
+      const delta = newQty - existingItem.quantity;
+      if (delta !== 0) {
+        updateQuantity(id, delta);
+      }
+    }
   };
 
   const [productRatingsMap, setProductRatingsMap] = useState<Record<string, { total: number; count: number }>>({});
@@ -308,6 +346,8 @@ export default function ShopPage() {
         onClose={() => setSelectedProduct(null)}
         cartQuantity={selectedProduct ? cartQuantities[selectedProduct.id] || 0 : 0}
         onUpdateQuantity={handleUpdateQuantity}
+        onAddToCart={handleAddToCart}
+        onOrderNow={handlePreOrder}
       />
     </main>
   );

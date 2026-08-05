@@ -165,7 +165,7 @@ export default function AdminDashboard() {
               <Package className="w-7 h-7" />
             </div>
             <div>
-              <p className="text-dark-green/70 font-semibold text-sm">Total Pre-orders</p>
+              <p className="text-dark-green/70 font-semibold text-sm">Total Orders</p>
               <h2 className="text-3xl font-bold text-dark-green">{totalOrders}</h2>
             </div>
           </div>
@@ -241,7 +241,7 @@ export default function AdminDashboard() {
         {/* Recent Orders Table */}
         <div className="bg-bright-white border border-gray-200 rounded-[2rem] overflow-hidden shadow-sm">
           <div className="p-6 sm:p-8 border-b border-gray-200 flex justify-between items-center">
-            <h2 className="font-ultra text-2xl text-dark-green">Recent Pre-Orders</h2>
+            <h2 className="font-ultra text-2xl text-dark-green">Recent Orders</h2>
           </div>
           
           <div className="overflow-x-auto">
@@ -412,7 +412,7 @@ export default function AdminDashboard() {
                 ) : (
                   <tr>
                     <td colSpan="9" className="px-6 py-8 text-center text-dark-green/50">
-                      No pre-orders found.
+                      No orders found.
                     </td>
                   </tr>
                 )}

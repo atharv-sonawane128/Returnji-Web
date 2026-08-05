@@ -50,7 +50,10 @@ export default function Navbar() {
             <Link href="/" className="hover:opacity-70 transition-opacity">HOME</Link>
             <Link href="/shop" className="hover:opacity-70 transition-opacity">SHOP</Link>
             {user && (
-              <Link href="/orders" className="hover:opacity-70 transition-opacity text-dark-green font-bold">MY ORDERS</Link>
+              <>
+                <Link href="/my-products" className="hover:opacity-70 transition-opacity text-dark-green font-bold">MY PRODUCTS</Link>
+                <Link href="/orders" className="hover:opacity-70 transition-opacity text-dark-green font-bold">MY ORDERS</Link>
+              </>
             )}
           </div>
           
@@ -110,7 +113,10 @@ export default function Navbar() {
           <Link href="/" onClick={() => setIsOpen(false)} className="py-2 text-dark-green">HOME</Link>
           <Link href="/shop" onClick={() => setIsOpen(false)} className="py-2 text-dark-green">SHOP</Link>
           {user && (
-            <Link href="/orders" onClick={() => setIsOpen(false)} className="py-2 text-dark-green font-bold">MY ORDERS</Link>
+            <>
+              <Link href="/my-products" onClick={() => setIsOpen(false)} className="py-2 text-dark-green font-bold">MY PRODUCTS</Link>
+              <Link href="/orders" onClick={() => setIsOpen(false)} className="py-2 text-dark-green font-bold">MY ORDERS</Link>
+            </>
           )}
           <div className="border-t border-gray-100 pt-4 flex flex-col space-y-3">
             {!user ? (

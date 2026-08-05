@@ -1,6 +1,6 @@
 import { Ultra, Bricolage_Grotesque } from "next/font/google";
 import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import ConditionalFooter from "@/components/ConditionalFooter";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
 import CartDrawer from "@/components/CartDrawer";
@@ -74,7 +74,7 @@ export default function RootLayout({ children }) {
             <Navbar />
             <CartDrawer />
             {children}
-            <Footer />
+            <ConditionalFooter />
           </CartProvider>
         </AuthProvider>
       </body>

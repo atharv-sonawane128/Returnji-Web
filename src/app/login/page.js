@@ -62,7 +62,7 @@ export default function LoginPage() {
         <div className="text-center space-y-4">
           <h1 className="font-ultra text-4xl text-dark-green">Welcome Back</h1>
           <p className="font-bricolage text-dark-green/70">
-            Please sign in to continue with your pre-order or add items to your cart.
+            Please sign in to continue with your order or add items to your cart.
           </p>
         </div>
 
