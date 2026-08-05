@@ -20,6 +20,7 @@ import { ProductDetail } from "@/components/ProductCardThumbnail";
 import { RatingBadge } from "@/components/ui/RatingBadge";
 import { QuantityStepper } from "@/components/ui/QuantityStepper";
 import { useAuth } from "@/context/AuthContext";
+import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import { db } from "@/lib/firebase";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -56,6 +57,7 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
   const [offersExpanded, setOffersExpanded] = useState(false);
 
   const { user } = useAuth();
+  const { setIsCartOpen } = useCart();
   const router = useRouter();
 
   const [topReviews, setTopReviews] = useState<any[]>([]);
@@ -376,17 +378,25 @@ export const ProductDetailSheet: React.FC<ProductDetailSheetProps> = ({
                 </button>
               ) : (
                 <div className="flex items-center gap-2 sm:gap-3">
-                  <QuantityStepper
-                    quantity={cartQuantity}
-                    onIncrement={() => onUpdateQuantity(product.id, cartQuantity + 1)}
-                    onDecrement={() => onUpdateQuantity(product.id, Math.max(0, cartQuantity - 1))}
-                  />
+                  {cartQuantity > 0 && (
+                    <QuantityStepper
+                      quantity={cartQuantity}
+                      onIncrement={() => onUpdateQuantity(product.id, cartQuantity + 1)}
+                      onDecrement={() => onUpdateQuantity(product.id, Math.max(0, cartQuantity - 1))}
+                    />
+                  )}
 
                   {onAddToCart && (
                     <button
                       type="button"
-                      onClick={() => onAddToCart(product)}
-                      className="bg-[#1B4D3E] hover:bg-[#143B2F] active:scale-95 text-white font-bold rounded-xl px-3.5 sm:px-4 py-2.5 text-xs sm:text-sm transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                      onClick={() => {
+                        if (cartQuantity > 0) {
+                          setIsCartOpen(true);
+                        } else {
+                          onAddToCart(product);
+                        }
+                      }}
+                      className="bg-[#1B4D3E] hover:bg-[#143B2F] active:scale-95 text-white font-bold rounded-xl px-4 sm:px-5 py-2.5 text-xs sm:text-sm transition-all shadow-xs flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
                     >
                       <ShoppingCart className="w-4 h-4" />
                       <span>{cartQuantity > 0 ? "View Cart" : "Add to Cart"}</span>

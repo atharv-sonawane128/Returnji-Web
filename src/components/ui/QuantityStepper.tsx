@@ -21,20 +21,7 @@ export const QuantityStepper: React.FC<QuantityStepperProps> = ({
   const isSmall = size === "sm";
 
   if (quantity <= 0) {
-    return (
-      <button
-        type="button"
-        onClick={(e) => {
-          e.stopPropagation();
-          onIncrement();
-        }}
-        className={`bg-[#1B4D3E] hover:bg-[#143B2F] active:scale-95 text-white font-bold rounded-lg border border-[#1B4D3E] transition-all shadow-xs flex items-center justify-center cursor-pointer ${
-          isSmall ? "px-3 py-1 text-xs min-w-[64px]" : "px-6 py-2.5 text-sm min-w-[96px]"
-        } ${className}`}
-      >
-        ADD
-      </button>
-    );
+    return null;
   }
 
   return (

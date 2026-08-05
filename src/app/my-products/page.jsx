@@ -20,7 +20,8 @@ import {
   Lock,
   Award,
   RefreshCw,
-  ChevronRight
+  ChevronRight,
+  ShoppingBag
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -257,13 +258,13 @@ export default function MyProductsPage() {
             </div>
             <h3 className="text-2xl font-bold text-dark-green">No Products Activated Yet</h3>
             <p className="text-gray-600 text-sm leading-relaxed">
-              You haven't claimed any Returnji QR stickers or keychains yet. Select a product tag from our catalog to claim and activate it!
+              You haven't claimed any Returnji QR stickers or keychains yet. Select a product tag from our shop to buy and activate it!
             </p>
             <Link
-              href="/tags"
+              href="/shop"
               className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-dark-green text-white rounded-2xl font-bold text-sm hover:bg-dark-green/90 transition-all shadow-md mt-2"
             >
-              <Tag className="w-4 h-4" /> Browse & Claim Tags
+              <ShoppingBag className="w-4 h-4" /> Buy Tags
             </Link>
           </div>
         ) : (

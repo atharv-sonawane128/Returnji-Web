@@ -599,14 +599,15 @@ function OrderCard({ order, formatDate, getPaymentBadge, getStatusBadge, onOpenR
 
       {/* Footer: Details & Total */}
       <div className="pt-6 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        {order.deliveryDetails?.isStudent && order.deliveryDetails?.dropzone ? (
+        {order.deliveryDetails?.deliveryType === 'campus' || (order.deliveryDetails?.isStudent && order.deliveryDetails?.dropzone) ? (
           <div className="flex items-center gap-2 text-xs font-semibold text-dark-green/80 bg-light-beige/40 px-3 py-2 rounded-xl">
-            <MapPin className="w-4 h-4 text-dark-green" />
-            <span>Student Dropzone: <strong className="text-dark-green">{order.deliveryDetails.dropzone}</strong></span>
+            <MapPin className="w-4 h-4 text-dark-green shrink-0" />
+            <span>Campus Dropzone: <strong className="text-dark-green">{order.deliveryDetails.dropzone}</strong></span>
           </div>
         ) : (
-          <div className="text-xs text-gray-500 font-medium">
-            Delivering to: <span className="font-bold text-dark-green">{order.customerName || order.email}</span>
+          <div className="flex items-center gap-2 text-xs font-semibold text-dark-green/80 bg-light-beige/40 px-3 py-2 rounded-xl">
+            <MapPin className="w-4 h-4 text-dark-green shrink-0" />
+            <span>Delivering to: <strong className="text-dark-green">{order.deliveryDetails?.address ? `${order.deliveryDetails.address}, ${order.deliveryDetails.city}${order.deliveryDetails.state ? `, ${order.deliveryDetails.state}` : ''} - ${order.deliveryDetails.pincode}` : (order.dropzone || order.customerName || order.email)}</strong></span>
           </div>
         )}
 

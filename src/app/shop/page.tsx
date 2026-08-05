@@ -200,7 +200,6 @@ export default function ShopPage() {
       image: product.imageUrl,
       desc: product.description,
     });
-    setIsCartOpen(true);
   };
 
   const handleUpdateQuantity = (id: string, newQty: number) => {

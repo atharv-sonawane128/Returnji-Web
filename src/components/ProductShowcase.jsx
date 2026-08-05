@@ -31,7 +31,6 @@ export default function ProductShowcase() {
 
   const handleAddToCart = (product) => {
     addToCart(product);
-    setIsCartOpen(true);
   };
 
   const filteredProducts = PRODUCTS.filter(p =>
